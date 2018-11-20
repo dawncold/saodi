@@ -1,4 +1,19 @@
 # -*- coding: utf-8 -*-
+"""
+ 0 1 2
+ 3 4 5
+ 6 7 8
+
+ 从0开始，从6结束
+ 只能水平或垂直走，不能斜着走或跳跃，例如从0开始，下一步只能是1或者3，而不能去4（斜着走）或者2（跳跃）
+ 不能返回，例如从0走到1后，理论上从1可以去0、2、4，但不允许返回0
+
+ 第一行的第一个节点开始，最后一行第一个节点结束
+ 某个节点最多有4种走法，分别是该节点的左右（如果有的话）以及上下（如果有的话）
+ 某个节点下一步（理论值）可去的节点是该节点加减1和该节点加减列数
+ 某个节点下一步可去的值是理论值减去曾经走过的节点
+
+"""
 from __future__ import unicode_literals, print_function, division
 import sys
 
@@ -36,14 +51,16 @@ def visit_node(row, column, node, visited):
     next_nodes = set(list_next_nodes(row, column, node))
     available_next_nodes = next_nodes - set(visited)
     if not available_next_nodes:
-        return [node]
+        return [[node]]
     else:
         nexts = []
         for next_node in available_next_nodes:
             visited.append(node)
             nexts.extend(visit_node(row, column, next_node, visited))
             visited.pop()
-        return [[node, e] for e in nexts]
+        for n in nexts:
+            n.insert(0, node)
+        return nexts
 
 
 if __name__ == '__main__':
@@ -58,4 +75,6 @@ if __name__ == '__main__':
     end = rooms[-1][0]
 
     visited = []
-    print(visit_node(row, column, start, visited))
+    results = visit_node(row, column, start, visited)
+    print(results)
+    print(len([r for r in results if r[-1] == end and len(r) == row * column]))
